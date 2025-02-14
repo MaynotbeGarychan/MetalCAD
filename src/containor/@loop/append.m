@@ -1,4 +1,11 @@
 function obj = append(obj,varargin)
+% use it like
+% loops_id = [1;2];
+% loops_segs = {[1;2];[2;3]};
+% assemble_gbs.loops.append(loops_id, loops_segs);
+% 
+% or directly append the loops obj
+%
     props = properties(obj);
     num_prop = numel(props);
     if nargin == 2

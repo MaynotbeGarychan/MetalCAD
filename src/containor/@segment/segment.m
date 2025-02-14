@@ -127,6 +127,8 @@ classdef segment < handle
 
         function out = length(obj); out = length(obj.id); end
 
+        function out = num(obj);out = length(obj.id);end
+
         function n = numArgumentsFromSubscript(obj,s,indexingContext)
         % overloaded method to avoid Output argument "varargout{2}" not
         % assigned value error

@@ -36,7 +36,8 @@ classdef assemble < handle
         write(obj,file_dir, lc);
 
         %% point tools
-        [region_range,center_pos] = retRegionRange(obj);
+        [region_range,center_pos,region_size] = retRegionRange(obj);
+        [pts_ids, segs_ids, loops_ids, pts_idxs, segs_idxs, loops_idxs] = retPartsBaseGeo(obj,parts_idxs);
 
         %% segment tools
         % return information
@@ -63,13 +64,15 @@ classdef assemble < handle
 
         % return information
         [partsId,partsIdx] = retPartOfTheLoop(obj, loopId);
-        [pointsCoor, points, pointsSeg, pointsInsegIdx] = retLoopPoints(obj, idx);
-        [itsecSegsIds,itsecSegsIdxs] = retLoopItsecSegs(obj, loopIdx);
-        [itsecLoopsIds, itsecLoopsIdxs] = retLoopItsecLoops(obj, loopIdx);
+        % [pointsCoor, points, pointsSeg, pointsInsegIdx] = retLoopPoints(obj, idx);
+        [pointsCoor, points, pointsSeg, pointsInsegIdx] = retLoopPoints(obj, idx, varargin);
+        [itsecSegsIds,itsecSegsIdxs] = retLoopItsecSegs(obj, loopIdx, additionalInput);
+        [itsecLoopsIds, itsecLoopsIdxs] = retLoopItsecLoops(obj, loopIdx, additionalInput);
         ret = retVertexOnLoopIdx(obj, loopIdx, segId, vertexIdx);
         polygon = retLoopPolygon(obj, loop_idx); % polyshape related
         points_id = retPointsInLoops(obj,loop_idx); % polyshape related
         bool = chkLoopInsideLoop(obj,loop1Idx,loop2Idx); % polyshape related
+        area = retLoopArea(obj,loopIdx); % 返回回环的面积
 
         % check function
         [bool, shared_segs] = chkShareSegsOfLoops(obj, loop1_idx, loop2_idx);
@@ -93,7 +96,11 @@ classdef assemble < handle
 
         %% gmsh issues
         organizePartsLoopForGmsh(obj);
+         fixGmshPartLoopsOrder(obj, csv_dir);
 
+        %% region functions
+        regions_loops = retLoopRegion(obj, input); % 返回所有loops的矩形regions
+        regions_segs = retSegRegion(obj); % 返回所有segs的矩形regions
     end
 
 % -------------------------------------------------------------------------

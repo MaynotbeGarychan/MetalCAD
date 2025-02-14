@@ -1,21 +1,33 @@
 function assembleCopy = cropLoopsOutside(assembleAll,cutloopIdxs)
 
-% init
+% init basic
 assembleCopy = assembleAll.copy();
-status = 'debug';
+% status = 'debug';
+status = 'release';
 loopDelete = [];
 numCutLoop = length(cutloopIdxs);
 
+% init the region of segs and loops
+regionsAllSegs = assembleAll.retSegRegion();
+
 fprintf('=============================================================\n');
 for i=1:numCutLoop
-    % init
-    cutLoopIdx = cutloopIdxs(i);
+    %% init
+    cutLoopIdx = cutloopIdxs(i); close all
+    if cutLoopIdx == 38
+        fprintf('debug\n');
+    end
+    assembleAll.plotLoop(cutLoopIdx,'red')
     fprintf('CropLoopByLoop: Begined with cutloop %d (In progress: %d/%d).\n', cutLoopIdx, i, numCutLoop);
-    % check the intersecting segs, and loops of the loop
-    [~,itsecSegsIdxs] = assembleCopy.retLoopItsecSegs(cutLoopIdx);
-    [~,itsecLoopsIdxs] = assembleCopy.retLoopItsecLoops(cutLoopIdx);        % return the intersection loops
+    %% check the intersecting segs, and loops of the loop
+    % preconditioner to selected to possible segs and loops
+    regionsAllSegs = assembleCopy.retSegRegion();
+    regionCutLoop = assembleCopy.retLoopRegion(cutLoopIdx);
+    itsecSegsIdxsPossible = retItsecRegionAll(regionsAllSegs,regionCutLoop);
+    [~,itsecSegsIdxs] = assembleCopy.retLoopItsecSegs(cutLoopIdx,itsecSegsIdxsPossible);
+    [~,itsecLoopsIdxs] = assembleCopy.retLoopItsecLoops(cutLoopIdx,itsecSegsIdxsPossible);        % return the intersection loops
     if strcmp(status, 'debug'); close all; assembleCopy.plotLoop(cutLoopIdx, 'black'); assembleCopy.plotLoop(itsecLoopsIdxs, 'blue'); assembleCopy.plotSeg(itsecSegsIdxs,'red'); hold on; end
-    % classify
+    %% classify
     loopPosType = classify(assembleCopy, itsecLoopsIdxs, itsecSegsIdxs);
     
     % begin to crop

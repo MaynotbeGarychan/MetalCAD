@@ -4,7 +4,7 @@ clear
 % import
 CS = crystalSymmetry.load('Al-Aluminum.cif');
 SS = specimenSymmetry('triclinic');
-ebsd_data_dir = './eg4input/scan_7_clean_gd.ang';
+ebsd_data_dir = './eg4input/ebsd.ang';
 ebsd = EBSD.load(ebsd_data_dir,CS,'interface','ang','convertSpatial2EulerReferenceFrame','setting 2');
 ebsd = rotate(ebsd,45*degree);
 region = [min(ebsd.x)+100 min(ebsd.y)+100 100 100];
@@ -59,4 +59,7 @@ assembleCopy = cropLoopsOutside(assembleCopy,cutloopIdxs);
 assembleCopy.write('test_combine.geo',1.0);
 
 %% write
-assembleCopy.write('D:\progress\composites\polycrystal_with_particle_model\test.geo',0.5);
+% assembleCopy.write('D:\progress\composites\polycrystal_with_particle_model\test.geo',0.5);
+
+%% calculate the particle area
+area = assemble_pbs.retLoopArea('all');

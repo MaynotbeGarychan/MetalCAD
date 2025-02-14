@@ -1,4 +1,12 @@
 function obj = append(obj,varargin)
+% use it like:
+% parts_id = [1;2];
+% parts_loops = {[1];[2]};
+% parts_type = [PART_TYPE.GRAIN; PART_TYPE.GRAIN];
+% assemble_gbs.parts.append(parts_id, parts_loops, parts_type);
+% 
+% or append the part obj
+% 
     props = properties(obj);
     num_prop = numel(props);
     if nargin == 2

@@ -1,0 +1,13 @@
+function region = initRegion(varargin)
+
+if nargin == 2 % (center,sizeLimit)
+    center = varargin{1}; sizeLimit = varargin{2};
+    x0 = center(1); y0 = center(2);
+    lx = sizeLimit(1); ly= sizeLimit(2);
+    region = [x0-lx/2,x0+lx/2;y0-ly/2,y0+ly/2];
+elseif nargin == 4 % (x1,x2,y1,y2)
+    region = [x1,x2;y1,y2];
+end
+
+end
+
