@@ -94,10 +94,6 @@ classdef assemble < handle
         %% clear function
         obj = clearFreeGeo(obj);
 
-        %% gmsh issues
-        organizePartsLoopForGmsh(obj);
-         fixGmshPartLoopsOrder(obj, csv_dir);
-
         %% region functions
         regions_loops = retLoopRegion(obj, input); % 返回所有loops的矩形regions
         regions_segs = retSegRegion(obj); % 返回所有segs的矩形regions

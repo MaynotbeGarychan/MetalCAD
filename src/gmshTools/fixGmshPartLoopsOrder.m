@@ -1,13 +1,14 @@
-function lsppPartTransInfo = fixGmshPartLoopsOrder(obj)
+function assemble1 = fixGmshPartLoopsOrder(assemble0,csv_dir)
+
+assemble1 = assemble0.copy();
 
 % init
-numParts = obj.parts.num;
-lsppPartTransInfo.moms = [];
-lsppPartTransInfo.kids = [];
+numParts = assemble1.parts.num;
+lsppPartTransInfo_arr = [];
 % begin to check over the parts
 for i=1:numParts
     % obtain the parts loops
-    partLoops = obj.parts(i).loops;
+    partLoops = assemble1.parts(i).loops;
     conditionPositive = (partLoops > 0); 
 
     % if simple case like [+] or [+,-,-], we can skip it directly
@@ -19,21 +20,18 @@ for i=1:numParts
     if all(conditionPositive) % all positive loops
         newPartLoopsCells = generateNewPartLoopCells_AllPositive(partLoops);
     else
-        newPartLoopsCells = generateNewPartLoopCells_WithNegative(obj, partLoops);
+        newPartLoopsCells = generateNewPartLoopCells_WithNegative(assemble1, partLoops);
     end
 
     % obtain the info for lspp transformation of multiple parts
     % change the parts
-    obj.parts(i).loops = newPartLoopsCells{1};
-    numPartExt = numel(newPartLoopsCells)-1;
-    for j=2:numel(newPartLoopsCells)
-        newPartId = obj.parts(end).id+1;
-        obj.parts.append(part(newPartId, [newPartLoopsCells(j)], PART_TYPE.GRAIN));
-        lsppPartTransInfo.kids = [lsppPartTransInfo.kids; newPartId];
-        lsppPartTransInfo.moms = [lsppPartTransInfo.moms; obj.parts(i).id];
-    end
+    temp = modifyPartLoop(assemble1, i, newPartLoopsCells);
+    lsppPartTransInfo_arr = [lsppPartTransInfo_arr; temp];
 
 end
+
+% output the transform info for lspp
+outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir);
 
 end
 
@@ -49,7 +47,7 @@ end
 end
 
 
-function newPartLoopsCells = generateNewPartLoopCells_WithNegative(obj, partLoops)
+function newPartLoopsCells = generateNewPartLoopCells_WithNegative(assemble1, partLoops)
 
 % obtain the positve and negative loop
 conditionPositive = (partLoops > 0); 
@@ -64,12 +62,12 @@ numNegativeLoops = length(partLoopsNegative);
 motherPositiveLoopsOfNegativeLoop = NaN([numNegativeLoops 1]);
 for j=1:numNegativeLoops
     idNegative = partLoopsNegative(j);
-    idxNegative = find(obj.loops.id == idNegative);
-    negativeLoopCoor = obj.retLoopPoints(idxNegative,'Unreordered');
+    idxNegative = find(assemble1.loops.id == idNegative);
+    negativeLoopCoor = assemble1.retLoopPoints(idxNegative,'Unreordered');
     for k=1:numPositiveLoops
         idPositive = partLoopsPositive(k);
-        idxPositive = find(obj.loops.id == idPositive);
-        positiveLoopCoor = obj.retLoopPoints(idxPositive,'Unreordered');
+        idxPositive = find(assemble1.loops.id == idPositive);
+        positiveLoopCoor = assemble1.retLoopPoints(idxPositive,'Unreordered');
         boolArr = inpolygon(negativeLoopCoor(:,1), negativeLoopCoor(:,2), positiveLoopCoor(:,1), positiveLoopCoor(:,2));
         if all(boolArr)
             motherPositiveLoopsOfNegativeLoop(j) = idPositive;
@@ -97,3 +95,34 @@ end
 
 %% generate info for lspp transformation of multiple parts
 
+function lsppPartTransInfo_arr = modifyPartLoop(assemble1, currIdx, newPartLoopsCells)
+
+lsppPartTransInfo_moms = [];
+lsppPartTransInfo_kids = [];
+assemble1.parts(currIdx).loops = newPartLoopsCells{1};
+
+for j=2:numel(newPartLoopsCells)
+    newPartId = assemble1.parts(end).id+1;
+    assemble1.parts.append(part(newPartId, [newPartLoopsCells(j)], PART_TYPE.GRAIN));
+    lsppPartTransInfo_kids = [lsppPartTransInfo_kids; newPartId];
+    lsppPartTransInfo_moms = [lsppPartTransInfo_moms; assemble1.parts(currIdx).id];
+end
+
+lsppPartTransInfo_arr = [lsppPartTransInfo_kids, lsppPartTransInfo_moms];
+
+end
+
+
+function outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir)
+    % all parts to one id
+    particle_parts_idxs = find(assemble1.parts.type == PART_TYPE.PARTICLE);
+    particle_parts_ids = assemble1.parts.id(particle_parts_idxs);
+    num_particles = length(particle_parts_ids);
+    particle_id = max(assemble1.parts.id) + 1;
+    parts_transform_array = [particle_parts_ids, ones([num_particles 1]).*particle_id];
+    % unlinked parts to the same id
+    parts_transform_array = [parts_transform_array; lsppPartTransInfo_arr];
+    % output
+    writematrix(parts_transform_array,csv_dir);
+
+end

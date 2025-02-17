@@ -1,4 +1,4 @@
-function density = calDensity(assemble, density0, density_ctrl, obj_ctrl, idxs)
+function density = calGmshDensity(assemble, density0, density_ctrl, obj_ctrl, idxs)
 
     density = ones([length(assemble.points) 1]).*density0;
 
