@@ -1,8 +1,11 @@
 function assemble1 = fixAssembleRegion2Rect(assemble0)
+% init
 assemble1 = assemble0.copy();
-[region,~,~] = assemble1.retRegionRange();
+[region,~,~] = assemble1.retRegion();
 x_min = region(1,1); x_max = region(1,2);
 y_min = region(2,1); y_max = region(2,2);
+fprintf('fixAssembleRegion2Rect: Begined to fix the the region of the assemble to a tatic rectangle (%d,%d) to (%d,%d).\n', ...
+    x_min,y_min,x_max,y_max);
 % obtain x,y
 x = assemble1.points.coordinate(:,1);
 y = assemble1.points.coordinate(:,2);
@@ -61,5 +64,8 @@ if ~any(condition_D)
     pts_min_idx_l4 = pts_idx_l4(idx);
     assemble1.points.coordinate(pts_min_idx_l4,1) = x_min;
 end
+
+fprintf('fixAssembleRegion2Rect: Finished to fix the the region of the assemble to a tatic rectangle (%d,%d) to (%d,%d).\n', ...
+    x_min,y_min,x_max,y_max);
 end
 

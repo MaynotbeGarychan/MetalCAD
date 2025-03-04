@@ -36,7 +36,7 @@ classdef assemble < handle
         write(obj,file_dir, lc);
 
         %% point tools
-        [region_range,center_pos,region_size] = retRegionRange(obj);
+        [region_range,center_pos,region_size] = retRegion(obj);
         [pts_ids, segs_ids, loops_ids, pts_idxs, segs_idxs, loops_idxs] = retPartsBaseGeo(obj,parts_idxs);
 
         %% segment tools

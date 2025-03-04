@@ -1,4 +1,4 @@
-function assemble_pbs = generateParticleFromRepo(particle_repo_dir, frac_particle, pbs_region, gbs_region_area)
+function assemble_pbs = getAssemblePbsFromRepo(particle_repo_dir, frac_particle, pbs_region, gbs_region_area)
 
 % init 
 % init particle repo
@@ -16,23 +16,25 @@ assemble_pbs = assemble();
 while curr_particle_area < thres_particle_area
     % select randomly from the folder, and load the particle
     idx = randi(num_file);
-    if ~endsWith(file_list(idx).name, '.mat')
+    if ~(endsWith(file_list(idx).name, '.mat') || endsWith(file_list(idx).name, '.geo'))
         continue
     end
     particle_case_dir = [particle_repo_dir '\' file_list(idx).name];
-    temp = load(particle_case_dir);
-    assemble_onepb = temp.assemble_pbs;
+    assemble_onepb = particleMacro.getAssemblePb(particle_case_dir);
     area = assemble_onepb.retLoopArea('all');
     curr_particle_area = curr_particle_area + area;
-    [~,onepbs_center,onepbs_region_size] = assemble_onepb.retRegionRange();
+    % apply a random rotation
+    [~,onepbs_center,~] = assemble_onepb.retRegion(); angle = randi([0, 360]);
+    assemble_onepb.points.rotate(onepbs_center, angle);
     % design the position of the particle
+    [~,onepbs_center,onepbs_region_size] = assemble_onepb.retRegion();
     onepbs_center_random = randomInRegionWithFilledRegions(pbs_region, region_filled, onepbs_region_size);
     % transform the center
     dxy =  onepbs_center_random - onepbs_center;
     assemble_onepb.points.translate('x',dxy(1));
     assemble_onepb.points.translate('y',dxy(2));
     % save the filled region
-    [onepbs_region,~,~] = assemble_onepb.retRegionRange();
+    [onepbs_region,~,~] = assemble_onepb.retRegion();
     region_filled{end+1} = onepbs_region;
     % append the particle
     assemble_pbs.append(assemble_onepb);
@@ -40,4 +42,5 @@ while curr_particle_area < thres_particle_area
     fprintf('generateParticleFromRepo: Instered one set of particle, the current particle fraction is %d / %d .\n', ...
         curr_particle_area/gbs_region_area, frac_particle);
 end
+
 end

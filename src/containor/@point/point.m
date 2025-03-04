@@ -26,6 +26,7 @@ classdef point < handle
 % -------------------------------------------------------------------------
         flag = translate(obj,coor,dx);
         flag = scale(obj,coor,factor);
+        rotate(obj,pt_origin,deg);
         flag = write(obj,output,lc);
         obj = append(obj,varargin);
         % a = equiv(obj,thres);

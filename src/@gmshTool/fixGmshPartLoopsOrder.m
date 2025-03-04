@@ -1,8 +1,9 @@
-function assemble1 = fixGmshPartLoopsOrder(assemble0,csv_dir)
+function [assemble1,particle_id] = fixGmshPartLoopsOrder(assemble0,csv_dir,num_grains)
 
-assemble1 = assemble0.copy();
+fprintf('FixGmshPartLoopsOrder: Begined to fix the the loops of part to adapt to the Gmsh logic.\n');
 
 % init
+assemble1 = assemble0.copy();
 numParts = assemble1.parts.num;
 lsppPartTransInfo_arr = [];
 % begin to check over the parts
@@ -31,8 +32,18 @@ for i=1:numParts
 end
 
 % output the transform info for lspp
-outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir);
+particle_id = outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir);
 
+% fix the particle is also in order
+if isscalar(num_grains)
+    new_partcicle_id = num_grains + 1;
+    fid = fopen(csv_dir,'a+');
+    fprintf(fid, '%g,%g\n', [particle_id,new_partcicle_id]);
+    fclose(fid);
+    particle_id = new_partcicle_id;
+end
+
+fprintf('FixGmshPartLoopsOrder: Finished to fix the the loops of part to adapt to the Gmsh logic.\n');
 end
 
 %% Generate New parts loops cells
@@ -113,7 +124,7 @@ lsppPartTransInfo_arr = [lsppPartTransInfo_kids, lsppPartTransInfo_moms];
 end
 
 
-function outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir)
+function particle_id = outputPartTransformInfo2CSV(assemble1,lsppPartTransInfo_arr,csv_dir)
     % all parts to one id
     particle_parts_idxs = find(assemble1.parts.type == PART_TYPE.PARTICLE);
     particle_parts_ids = assemble1.parts.id(particle_parts_idxs);

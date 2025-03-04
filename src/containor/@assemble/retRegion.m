@@ -1,4 +1,4 @@
-function [region_range,center_pos,region_size] = retRegionRange(obj)
+function [region_range,center_pos,region_size] = retRegion(obj)
 
 region_range = [min(obj.points.coordinate(:,1)), max(obj.points.coordinate(:,1));
     min(obj.points.coordinate(:,2)), max(obj.points.coordinate(:,2))];
