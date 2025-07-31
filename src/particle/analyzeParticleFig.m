@@ -3,6 +3,7 @@ function [pbs_smooth, pbs] = analyzeParticleFig(file_dir, num_dpi, mfy, thres_si
     % analyze the figure
     RGB = imread(file_dir);
     I = im2gray(RGB);
+    I = imgaussfilt(I,2);
     bw = imbinarize(I);
 
     % imshow(bw)
