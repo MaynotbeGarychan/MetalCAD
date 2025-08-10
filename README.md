@@ -18,7 +18,7 @@ An **OOP CAD Core** for **Metal Microstructure**<br>
 ### Example
 - The first typical example: grain structure with randomly distributed particles (See .\example\grains_with_particles\test.m)
 <div align="center">
-<img src="web/example1.jpg" alt="drawing" width="400"/><br>
+<img src="web/example1.jpg" alt="drawing" width="700"/><br>
 </div>
 
 - More examples and utilities will be developed!
