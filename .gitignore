@@ -1,5 +1,5 @@
-*.geo
-*.msh
 project
 *.asv
 .idea
+*.pptx
+*.ppt
